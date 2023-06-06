@@ -1,14 +1,15 @@
-const { reactive, computed, watch } = require("./reactive");
+const { computed, watchDeps } = require("./reactivity");
+const { TodoList, bindInteraction } = require("./dom");
+const { todos } = require("./data");
 
-const product = reactive({ price: 5, quantity: 2 });
-let totalPrice = computed(() => product.price * product.quantity);
-watch(totalPrice, "value", (to, from) => {
-  console.log(`Total price changes from ${from} to ${to}`);
+let progress = computed(() => todos.filter((todo) => todo.done).length / todos.length);
+
+document.addEventListener("DOMContentLoaded", () => {
+  watchDeps(() => {
+    document.getElementById("app").innerHTML = TodoList({
+      items: todos,
+      progress: progress,
+    });
+    bindInteraction(todos);
+  });
 });
-
-product.quantity = 10;
-product.price = 4;
-
-setTimeout(() => {
-  product.price = 2;
-}, 1000);
