@@ -1,4 +1,4 @@
-const { reactive } = require("../lib/reactivity");
+const { Observable } = require("../lib/observables");
 
 const data = {
   "Sessió cultural reactivitat": false,
@@ -6,4 +6,4 @@ const data = {
   "Reprendre vocero": false,
 };
 
-module.exports = reactive(data);
+module.exports = new Observable(data);
