@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
     <title>Reactivity mal</title>
-    <script src="main.js" loading="lazy"></script>
+    <script src="main.js" defer></script>
     <style>
     .todo-item.done {
         color: steelblue;
@@ -11,10 +11,34 @@
         display: flex;
         height: 30px;
         border: 1px solid;
+        position: relative;
     }
 
     .progress .done {
         background-color: steelblue;
+    }
+
+    .progress .label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-shadow: 3px 3px #0005;
+    }
+
+    button {
+        margin-left: 1em;
+        border: 1px solid;
+        outline: none;
+        background: white;
+        padding: 0.2em 0.6em;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .done button {
+        background-color: steelblue;
+        color: white;
     }
     </style>
 </head>

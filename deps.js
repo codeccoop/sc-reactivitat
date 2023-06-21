@@ -1,4 +1,4 @@
-let activeEffect; // Global variable to track the current running effect
+let activeEffects = []; // Global variable to track the current running effects
 
 class Dep {
   subcribers = new Set();
@@ -8,12 +8,12 @@ class Dep {
   }
 
   depend() {
-    if (!activeEffect) return;
-    this.subcribers.add(activeEffect);
+    if (!activeEffects.length) return;
+    this.subcribers.add(activeEffects[activeEffects.length - 1]);
   }
 }
 
-const targetMap = new WeakMap();
+let targetMap = new WeakMap();
 function getDep(target, key) {
   let depsMap = targetMap.get(target);
   if (!depsMap) {
@@ -36,9 +36,9 @@ function getDep(target, key) {
  * @param {Function} effect
  */
 function watchDeps(effect) {
-  activeEffect = () => effect();
+  activeEffects.push(effect);
   effect();
-  activeEffect = null;
+  activeEffects.pop();
 }
 
 module.exports = {

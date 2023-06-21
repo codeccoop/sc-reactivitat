@@ -6,6 +6,13 @@ const { Dep, getDep, watchDeps } = require("./deps");
  * @param {Object} target
  */
 function reactive(target) {
+  if (Array.isArray(target)) {
+    target = target.reduce((a, v, i) => {
+      a[i] = v;
+      return a;
+    }, {});
+  }
+
   const handler = {
     get(target, key) {
       const dep = getDep(target, key);
@@ -14,14 +21,26 @@ function reactive(target) {
       return target[key];
     },
     set(target, key, to) {
+      const oldKeys = Object.keys(target);
       const from = target[key];
-      if (from != to) {
+
+      if (from !== to) {
         target[key] = to;
         const dep = getDep(target, key);
         dep.notify(key, to, from);
       }
 
+      if (oldKeys.indexOf(key) === -1) {
+        const dep = getDep(target, "__keys");
+        dep.notify("__keys", Object.keys(target), oldKeys);
+      }
+
       return target[key];
+    },
+    ownKeys(target) {
+      const dep = getDep(target, "__keys");
+      dep.depend();
+      return Reflect.ownKeys(target);
     },
   };
 

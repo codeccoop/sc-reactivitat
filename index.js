@@ -1,15 +1,22 @@
-const { computed, watchDeps } = require("./reactivity");
-const { TodoList, bindInteraction } = require("./dom");
-const { todos } = require("./data");
+const { render } = require("./dom");
+const { App } = require("./components");
+const store = require("./store");
 
-let progress = computed(() => todos.filter((todo) => todo.done).length / todos.length);
+const rootEl = document.getElementById("app");
 
-document.addEventListener("DOMContentLoaded", () => {
-  watchDeps(() => {
-    document.getElementById("app").innerHTML = TodoList({
-      items: todos,
-      progress: progress,
-    });
-    bindInteraction(todos);
+function onRender() {
+  const buttons = Array.from(document.getElementsByTagName("button"));
+  buttons.forEach((btn) => {
+    const todo = btn.dataset.todo;
+    btn.addEventListener("click", () => (store[todo] = !store[todo]));
   });
-});
+
+  const input = document.getElementById("addTodo");
+  input.addEventListener("change", (ev) => {
+    const todo = ev.target.value;
+    store[todo] = false;
+    render(rootEl, App, onRender);
+  });
+}
+
+render(rootEl, App, onRender);
