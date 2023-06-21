@@ -1,3 +1,3 @@
 #! /bin/bash
 
-browserify index.js > browser/main.js
+browserify index.js > public/main.js
