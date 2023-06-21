@@ -1,10 +1,5 @@
-const { Dep, getDep, watchDeps } = require("./deps");
+const { Observable, getObservable, watch } = require("./observables");
 
-/*
- * Wraps an object into a reactive proxy
- *
- * @param {Object} target
- */
 function reactive(target) {
   if (Array.isArray(target)) {
     target = target.reduce((a, v, i) => {
@@ -15,8 +10,8 @@ function reactive(target) {
 
   const handler = {
     get(target, key) {
-      const dep = getDep(target, key);
-      dep.depend();
+      const observable = getObservable(target, key);
+      observable.depend();
 
       return target[key];
     },
@@ -26,20 +21,20 @@ function reactive(target) {
 
       if (from !== to) {
         target[key] = to;
-        const dep = getDep(target, key);
-        dep.notify(key, to, from);
+        const observable = getObservable(target, key);
+        observable.notify();
       }
 
       if (oldKeys.indexOf(key) === -1) {
-        const dep = getDep(target, "__keys");
-        dep.notify("__keys", Object.keys(target), oldKeys);
+        const observable = getObservable(target, "__keys");
+        observable.notify("__keys", Object.keys(target), oldKeys);
       }
 
       return target[key];
     },
     ownKeys(target) {
-      const dep = getDep(target, "__keys");
-      dep.depend();
+      const observable = getObservable(target, "__keys");
+      observable.depend();
       return Reflect.ownKeys(target);
     },
   };
@@ -47,36 +42,26 @@ function reactive(target) {
   return new Proxy(target, handler);
 }
 
-/*
- * Wrap a value into a reactive reference
- *
- * @param {Any} value;
- */
 function ref(value) {
-  const dep = new Dep();
+  const observable = Observable();
   const proxy = {
     get value() {
-      dep.depend();
+      observable.depend();
       return value;
     },
     set value(to) {
       const from = value;
       value = to;
-      dep.notify("value", to, from);
+      observable.notify("value", to, from);
     },
   };
 
   return proxy;
 }
 
-/*
- * Bounds a getter function to a reactive object dependencies
- *
- * @param {Function} getter
- */
 function computed(getter) {
   const result = ref();
-  watchDeps(() => (result.value = getter()));
+  watch(() => (result.value = getter()));
   return result;
 }
 
@@ -84,5 +69,4 @@ module.exports = {
   reactive,
   ref,
   computed,
-  watchDeps,
 };

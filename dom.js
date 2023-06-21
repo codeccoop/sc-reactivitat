@@ -1,9 +1,9 @@
-const { watchDeps } = require("./reactivity");
+const { watch } = require("./observables");
 
 function render(el, component, onRender) {
-  watchDeps(() => {
+  watch(() => {
     el.innerHTML = component();
-    onRender(el);
+    onRender();
   });
 }
 
