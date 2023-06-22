@@ -1,22 +1,30 @@
-const store = require("./lib/store");
+const state = require("./lib/state");
 const todos = require("./data/todos");
-store.setState(todos);
+state.setState(todos);
 
 let progress;
 function setProgress(state) {
-  progress =
-    Object.keys(state).filter((k) => state[k]).length / Object.keys(state).length;
+  const done = Object.keys(state).filter((k) => state[k]).length;
+  const todo = Object.keys(state).length;
+  progress = Math.round((done / todo) * 100) + "%";
 }
 
 function howImDoing(state) {
   setProgress(state);
-  console.log("Ets un cooperativiste al " + Math.round(progress * 100) + "%");
+  console.log("Ets un bon cooperativista?\n");
+  Object.keys(state).forEach((k) => {
+    console.log(k + ":", state[k]);
+  });
+  console.log("\nEts un cooperativiste al " + progress);
 }
-store.subscribe(howImDoing);
-howImDoing(store.getState());
 
-// store.dispatch({ "Nocions sobre feminisme": false });
-// store.dispatch({ "Assemblea de cures": false });
-// store.dispatch({ "Capacitat de treball en equip": false });
-// store.dispatch({ "Gaudir amb la intercooperació": false });
-// store.dispatch({ "Tenir temps lliure": false });
+state.subscribe(howImDoing);
+howImDoing(state.getState());
+
+// state.setState({ ...state.getState(), "Nocions sobre feminisme": false });
+// state.setState({ ...state.getState(), "Assemblea de cures": false });
+// state.setState({ ...state.getState(), "Capacitat de treball en equip": false });
+// state.setState({ ...state.getState(), "Gaudir amb la intercooperació": false });
+// state.setState({ ...state.getState(), "Tenir temps lliure": false });
+// state.setState({ ...state.getState(), "Tenir a la familia tranquila": false });
+// state.setState({ ...state.getState(), "Cobrar més que els teus amics": false });
