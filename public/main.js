@@ -49,7 +49,6 @@ const todos = require("../data/todos");
 function TodoItem({ todo, done }) {
   function onClick() {
     todos[todo] = !todos[todo];
-    console.log(Object.values(todos));
   }
 
   return h("li", { "class": "todo-item" + (done ? " done" : "") }, [
