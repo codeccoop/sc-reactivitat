@@ -22,7 +22,6 @@ state.subscribe(howImDoing);
 howImDoing(state.getState());
 
 // state.setState({ ...state.getState(), "Nocions sobre feminisme": false });
-// state.setState({ ...state.getState(), "Assemblea de cures": false });
 // state.setState({ ...state.getState(), "Capacitat de treball en equip": false });
 // state.setState({ ...state.getState(), "Gaudir amb la intercooperació": false });
 // state.setState({ ...state.getState(), "Tenir temps lliure": false });
