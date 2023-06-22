@@ -7,19 +7,19 @@ const TodoItem = require("./TodoItem");
 const AddTodo = require("./AddTodo");
 
 function TodoList() {
-  const names = computed(() => Array.from(Object.keys(todos)));
-  const count = computed(() => names.value.length);
-  const progress = computed(
-    () => names.value.filter((todo) => todos[todo]).length / count.value
-  );
+  const progress = computed(() => {
+    const done = Object.keys(todos).filter((todo) => todos[todo]).length;
+    const count = Object.keys(todos).length;
+    return done / count;
+  });
 
   return h("div", { "class": "list-wrapper" }, [
-    h("h1", null, "TODOS"),
-    ProgressBar({ count, progress }),
+    h("h1", null, "Ets un bon cooperativiste?"),
+    ProgressBar({ progress }),
     h(
       "ul",
       { "class": "todo-list" },
-      names.value.map((todo) =>
+      Object.keys(todos).map((todo) =>
         TodoItem({
           todos,
           todo,

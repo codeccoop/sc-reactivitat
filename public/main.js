@@ -28,13 +28,12 @@ module.exports = AddTodo;
 
 },{"../lib/vdom":10}],3:[function(require,module,exports){
 const { h } = require("../lib/vdom");
-const { computed } = require("../lib/reactivity");
 
-function ProgressBar({ count, progress }) {
-  const label = computed(() => `${count.value * progress.value}/${count.value}`);
+function ProgressBar({ progress }) {
+  const label = Math.round(progress.value * 100) + "%";
 
   return h("div", { "class": "progress" }, [
-    h("span", { "class": "label" }, label.value),
+    h("span", { "class": "label" }, label),
     h("div", { "class": "done", "style": "flex:" + progress.value }),
     h("div", { "class": "pending", "style": "flex:" + (1 - progress.value) }),
   ]);
@@ -42,7 +41,7 @@ function ProgressBar({ count, progress }) {
 
 module.exports = ProgressBar;
 
-},{"../lib/reactivity":9,"../lib/vdom":10}],4:[function(require,module,exports){
+},{"../lib/vdom":10}],4:[function(require,module,exports){
 const { h } = require("../lib/vdom");
 
 const todos = require("../data/todos");
@@ -50,6 +49,7 @@ const todos = require("../data/todos");
 function TodoItem({ todo, done }) {
   function onClick() {
     todos[todo] = !todos[todo];
+    console.log(Object.values(todos));
   }
 
   return h("li", { "class": "todo-item" + (done ? " done" : "") }, [
@@ -70,19 +70,19 @@ const TodoItem = require("./TodoItem");
 const AddTodo = require("./AddTodo");
 
 function TodoList() {
-  const names = computed(() => Array.from(Object.keys(todos)));
-  const count = computed(() => names.value.length);
-  const progress = computed(
-    () => names.value.filter((todo) => todos[todo]).length / count.value
-  );
+  const progress = computed(() => {
+    const done = Object.keys(todos).filter((todo) => todos[todo]).length;
+    const count = Object.keys(todos).length;
+    return done / count;
+  });
 
   return h("div", { "class": "list-wrapper" }, [
-    h("h1", null, "TODOS"),
-    ProgressBar({ count, progress }),
+    h("h1", null, "Ets un bon cooperativiste?"),
+    ProgressBar({ progress }),
     h(
       "ul",
       { "class": "todo-list" },
-      names.value.map((todo) =>
+      Object.keys(todos).map((todo) =>
         TodoItem({
           todos,
           todo,
@@ -100,9 +100,10 @@ module.exports = TodoList;
 const { reactive } = require("../lib/reactivity");
 
 const data = {
-  "Sessió cultural reactivitat": false,
-  "Landing pages": false,
-  "Reprendre vocero": false,
+  "Ser soci d'una cooperativa": true,
+  "Haver fet l'aportació de capital corresponent": true,
+  "Complir amb les teves obligacions": true,
+  "Participar activament a les assemblees": true,
 };
 
 module.exports = reactive(data);
@@ -163,15 +164,14 @@ module.exports = {
 const { Observable, getObservable, watch } = require("./observables");
 
 const reactiveHandler = {
-  get(target, key) {
+  get(target, key, receiver) {
     const observable = getObservable(target, key);
     observable.depend();
-
-    return target[key];
+    return Reflect.get(target, key, receiver);
   },
-  set(target, key, to) {
-    const oldKeys = Object.keys(target);
-    const from = target[key];
+  set(target, key, to, receiver) {
+    const oldKeys = Reflect.ownKeys(target);
+    const from = Reflect.get(target, key, receiver);
 
     if (from !== to) {
       target[key] = to;
@@ -179,18 +179,18 @@ const reactiveHandler = {
       observable.notify();
     }
 
-    // if (oldKeys.indexOf(key) === -1) {
-    //   const observable = getObservable(target, "__keys");
-    //   observable.notify("__keys", Object.keys(target), oldKeys);
-    // }
+    if (oldKeys.indexOf(key) === -1) {
+      const observable = getObservable(target, "__keys");
+      observable.notify("__keys", Object.keys(target), oldKeys);
+    }
 
-    return target[key];
+    return Reflect.get(target, key, receiver);
   },
-  // ownKeys(target) {
-  //   const observable = getObservable(target, "__keys");
-  //   observable.depend();
-  //   return Reflect.ownKeys(target);
-  // },
+  ownKeys(target) {
+    const observable = getObservable(target, "__keys");
+    observable.depend();
+    return Reflect.ownKeys(target);
+  },
 };
 
 function reactive(target) {
@@ -263,7 +263,6 @@ function render(vdom, container) {
 }
 
 function patch(to, from) {
-  console.log("path");
   if (from.props) {
     for (let key in from.props) {
       if (/^on[A-Z]/.test(key)) {

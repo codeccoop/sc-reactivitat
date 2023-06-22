@@ -1,11 +1,10 @@
 const { h } = require("../lib/vdom");
-const { computed } = require("../lib/reactivity");
 
-function ProgressBar({ count, progress }) {
-  const label = computed(() => `${count.value * progress.value}/${count.value}`);
+function ProgressBar({ progress }) {
+  const label = Math.round(progress.value * 100) + "%";
 
   return h("div", { "class": "progress" }, [
-    h("span", { "class": "label" }, label.value),
+    h("span", { "class": "label" }, label),
     h("div", { "class": "done", "style": "flex:" + progress.value }),
     h("div", { "class": "pending", "style": "flex:" + (1 - progress.value) }),
   ]);
