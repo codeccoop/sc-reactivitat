@@ -1,10 +1,10 @@
 const { h } = require("../lib/vdom");
-const store = require("../lib/store");
+const state = require("../lib/state");
 
 function TodoItem({ todo, done }) {
   function onClick(ev) {
     const todo = ev.target.dataset.todo;
-    store.dispatch({ [todo]: !done });
+    state.setState({ ...state.getState(), [todo]: !done });
   }
 
   return h("li", { "class": "todo-item" + (done ? " done" : "") }, [

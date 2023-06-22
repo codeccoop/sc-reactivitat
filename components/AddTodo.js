@@ -1,9 +1,9 @@
 const { h } = require("../lib/vdom");
-const store = require("../lib/store");
+const state = require("../lib/state");
 
 function AddTodo() {
   function onChange(ev) {
-    store.dispatch({ [ev.target.value]: false });
+    state.setState({ ...state.getState(), [ev.target.value]: false });
   }
   return h("div", { "class": "field" }, [
     h("label", null, "Add todo"),

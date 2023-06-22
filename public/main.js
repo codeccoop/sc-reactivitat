@@ -11,11 +11,11 @@ module.exports = App;
 
 },{"./components/TodoList":5,"./lib/vdom":9}],2:[function(require,module,exports){
 const { h } = require("../lib/vdom");
-const store = require("../lib/store");
+const state = require("../lib/state");
 
 function AddTodo() {
   function onChange(ev) {
-    store.dispatch({ [ev.target.value]: false });
+    state.setState({ ...state.getState(), [ev.target.value]: false });
   }
   return h("div", { "class": "field" }, [
     h("label", null, "Add todo"),
@@ -25,11 +25,11 @@ function AddTodo() {
 
 module.exports = AddTodo;
 
-},{"../lib/store":8,"../lib/vdom":9}],3:[function(require,module,exports){
+},{"../lib/state":8,"../lib/vdom":9}],3:[function(require,module,exports){
 const { h } = require("../lib/vdom");
 
-function ProgressBar({ count, progress }) {
-  const label = `${count * progress}/${count}`;
+function ProgressBar({ progress }) {
+  const label = Math.round(progress * 100) + "%";
 
   return h("div", { "class": "progress" }, [
     h("span", { "class": "label" }, label),
@@ -42,12 +42,12 @@ module.exports = ProgressBar;
 
 },{"../lib/vdom":9}],4:[function(require,module,exports){
 const { h } = require("../lib/vdom");
-const store = require("../lib/store");
+const state = require("../lib/state");
 
 function TodoItem({ todo, done }) {
   function onClick(ev) {
     const todo = ev.target.dataset.todo;
-    store.dispatch({ [todo]: !done });
+    state.setState({ ...state.getState(), [todo]: !done });
   }
 
   return h("li", { "class": "todo-item" + (done ? " done" : "") }, [
@@ -58,28 +58,28 @@ function TodoItem({ todo, done }) {
 
 module.exports = TodoItem;
 
-},{"../lib/store":8,"../lib/vdom":9}],5:[function(require,module,exports){
+},{"../lib/state":8,"../lib/vdom":9}],5:[function(require,module,exports){
 const { h } = require("../lib/vdom");
-const store = require("../lib/store");
+const state = require("../lib/state");
 
 const ProgressBar = require("./ProgressBar");
 const TodoItem = require("./TodoItem");
 const AddTodo = require("./AddTodo");
 
 function TodoList() {
-  const state = store.getState();
+  const currentState = state.getState();
 
-  const todos = Array.from(Object.keys(state));
+  const todos = Array.from(Object.keys(currentState));
   const count = todos.length;
-  const progress = todos.filter((todo) => state[todo]).length / count;
+  const progress = todos.filter((todo) => currentState[todo]).length / count;
 
   return h("div", { "class": "list-wrapper" }, [
-    h("h1", null, "TODOS"),
-    ProgressBar({ count, progress }),
+    h("h1", null, "Ets un bon cooperativiste?"),
+    ProgressBar({ progress }),
     h(
       "ul",
       { "class": "todo-list" },
-      todos.map((todo, i) => TodoItem({ todo, done: state[todo] }))
+      todos.map((todo, i) => TodoItem({ todo, done: currentState[todo] }))
     ),
     h("div", null, [AddTodo()]),
   ]);
@@ -87,48 +87,47 @@ function TodoList() {
 
 module.exports = TodoList;
 
-},{"../lib/store":8,"../lib/vdom":9,"./AddTodo":2,"./ProgressBar":3,"./TodoItem":4}],6:[function(require,module,exports){
+},{"../lib/state":8,"../lib/vdom":9,"./AddTodo":2,"./ProgressBar":3,"./TodoItem":4}],6:[function(require,module,exports){
 const data = {
-  "Sessió cultural reactivitat": false,
-  "Landing pages": false,
-  "Reprendre vocero": false,
+  "Ser soci d'una cooperativa": true,
+  "Haver fet l'aportació de capital corresponent": true,
+  "Complir amb les teves obligacions": true,
+  "Participar activament a les assemblees": true,
 };
 
 module.exports = data;
 
 },{}],7:[function(require,module,exports){
 const { mount } = require("./lib/vdom");
-const store = require("./lib/store");
+const state = require("./lib/state");
 const App = require("./App");
 const todos = require("./data/todos");
-store.setState(todos);
+state.setState(todos);
 
 const container = document.getElementById("container");
 
-store.subscribe(() => mount(App, container));
+state.subscribe(() => mount(App, container));
 mount(App, container);
 
-},{"./App":1,"./data/todos":6,"./lib/store":8,"./lib/vdom":9}],8:[function(require,module,exports){
-function Store() {
-  const subcribers = new Set();
+},{"./App":1,"./data/todos":6,"./lib/state":8,"./lib/vdom":9}],8:[function(require,module,exports){
+function State() {
+  let state;
+  const subscribers = new Set();
   return {
     setState(data) {
       state = data;
+      subscribers.forEach((effect) => effect(state));
     },
     getState() {
       return Object.freeze(state);
     },
     subscribe(effect) {
-      subcribers.add(effect);
-    },
-    dispatch(change) {
-      state = { ...state, ...change };
-      subcribers.forEach((effect) => effect(state));
+      subscribers.add(effect);
     },
   };
 }
 
-module.exports = Store();
+module.exports = State();
 
 },{}],9:[function(require,module,exports){
 function h(tag, props, children) {

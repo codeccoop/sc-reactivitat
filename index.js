@@ -1,10 +1,10 @@
 const { mount } = require("./lib/vdom");
-const store = require("./lib/store");
+const state = require("./lib/state");
 const App = require("./App");
 const todos = require("./data/todos");
-store.setState(todos);
+state.setState(todos);
 
 const container = document.getElementById("container");
 
-store.subscribe(() => mount(App, container));
+state.subscribe(() => mount(App, container));
 mount(App, container);
