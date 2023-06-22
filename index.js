@@ -4,24 +4,21 @@ const { watch } = require("./lib/observables");
 
 const names = computed(() => Array.from(Object.keys(todos.value)));
 const count = computed(() => names.value.length);
-const progress = computed(
-  () => Object.keys(todos.value).filter((todo) => todos.value[todo]).length / count.value
-);
-
-watch(() => {
-  console.log("Count: ", count.value);
-  console.log("Progress: ", Math.round(progress.value * 100) + "%");
+const progress = computed(() => {
+  const done = Object.keys(todos.value).filter((todo) => todos.value[todo]).length;
+  return Math.round((done / count.value) * 100) + "%";
 });
 
-todos.value = { ...todos.value, [names.value[0]]: true };
-todos.value = { ...todos.value, [names.value[1]]: true };
-todos.value = { ...todos.value, [names.value[2]]: true };
+watch(() => {
+  console.log("Ets un bon cooperativa?\n");
+  Object.keys(todos.value).forEach((k) => {
+    console.log(k + ":", todos.value[k]);
+  });
+  console.log("\nEts un cooperativista al " + progress.value);
+});
 
-let i = 1;
-const interval = setInterval(() => {
-  todos.value = { ...todos.value, ["Task-" + i]: false };
-  i++;
-  if (i === 10) {
-    clearInterval(interval);
-  }
-}, 1000);
+// todos.value = { ...todos.value, "Nocions sobre feminisme": false };
+// todos.value = { ...todos.value, "Gaudir de la intercooperació": false };
+// todos.value = { ...todos.value, "Tenir temps lliure": false };
+// todos.value = { ...todos.value, "Tenir a la familia tranquila": false };
+// todos.value = { ...todos.value, "Cobrar més que els teus amics": false };

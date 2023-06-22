@@ -1,9 +1,10 @@
 const { Observable } = require("../lib/observables");
 
 const data = {
-  "Sessió cultural reactivitat": false,
-  "Landing pages": false,
-  "Reprendre vocero": false,
+  "Ser soci d'una cooperativa": true,
+  "Haver fet l'aportació de capital corresponent": true,
+  "Complir amb les teves obligacions": true,
+  "Participar activament a les assemblees": true,
 };
 
 module.exports = new Observable(data);
